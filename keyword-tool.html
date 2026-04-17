@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <base target="_top">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔍 Keyword Research Tool - ASO SaaS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0a0e27;
+            --bg-secondary: #111729;
+            --card-bg: #1a1f3a;
+            --text-primary: #f0f4ff;
+            --text-secondary: #a0aec0;
+            --accent: #6366f1;
+            --accent-hover: #818cf8;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --border-color: #2d3748;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-color);
+            color: var(--text-primary);
+            line-height: 1.6;
+            max-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+
+        .header p {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .mode-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 12px;
+        }
+
+        .mode-tab {
+            padding: 8px 16px;
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .mode-tab.active {
+            color: var(--accent);
+            border-bottom-color: var(--accent);
+        }
+
+        .mode-tab:hover {
+            color: var(--accent-hover);
+        }
+
+        .mode-section {
+            display: none;
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .mode-section.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        input[type="text"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 12px;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+        }
+
+        input[type="text"]:focus,
+        textarea:focus,
+        select:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+            background-color: var(--bg-color);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .col {
+            flex: 1;
+        }
+
+        .info-box {
+            background: rgba(99, 102, 241, 0.1);
+            border-left: 3px solid var(--accent);
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, var(--accent), #8b5cf6);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+        }
+
+        button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+        }
+
+        button:disabled {
+            background: var(--border-color);
+            color: var(--text-secondary);
+            cursor: not-allowed;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(99, 102, 241, 0.2);
+            border-radius: 50%;
+            border-top-color: var(--accent);
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .loading-container {
+            display: none;
+            text-align: center;
+            padding: 30px;
+        }
+
+        .loading-container.show {
+            display: block;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 4px;
+            background: var(--border-color);
+            border-radius: 2px;
+            margin: 12px 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent), #8b5cf6);
+            width: 0%;
+            transition: width 0.3s;
+        }
+
+        .progress-text {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 8px;
+        }
+
+        .datatable {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 16px;
+            font-size: 13px;
+        }
+
+        .datatable th {
+            background: var(--card-bg);
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            color: var(--text-secondary);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .datatable td {
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .datatable tbody tr:hover {
+            background: rgba(99, 102, 241, 0.05);
+        }
+
+        .score-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 12px;
+        }
+
+        .score-high {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--success);
+        }
+
+        .score-med {
+            background: rgba(245, 158, 11, 0.15);
+            color: var(--warning);
+        }
+
+        .score-low {
+            background: rgba(239, 68, 68, 0.15);
+            color: var(--danger);
+        }
+
+        .status-error {
+            color: var(--danger);
+        }
+
+        .status-success {
+            color: var(--success);
+        }
+
+        .results-container {
+            flex: 1;
+            overflow-y: auto;
+            margin-bottom: 12px;
+        }
+
+        .action-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .action-buttons button {
+            margin: 0;
+        }
+
+        a {
+            color: var(--accent);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        a:hover {
+            color: var(--accent-hover);
+            text-decoration: underline;
+        }
+
+        .error-message {
+            background: rgba(239, 68, 68, 0.1);
+            border-left: 3px solid var(--danger);
+            padding: 12px;
+            border-radius: 6px;
+            margin-top: 12px;
+            font-size: 13px;
+            color: var(--danger);
+        }
+
+        .success-message {
+            background: rgba(16, 185, 129, 0.1);
+            border-left: 3px solid var(--success);
+            padding: 12px;
+            border-radius: 6px;
+            margin-top: 12px;
+            font-size: 13px;
+            color: var(--success);
+        }
+
+        .warning-message {
+            background: rgba(245, 158, 11, 0.1);
+            border-left: 3px solid var(--warning);
+            padding: 12px;
+            border-radius: 6px;
+            margin-top: 12px;
+            font-size: 13px;
+            color: var(--warning);
+        }
+
+        @keyframes slideInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .form-group input:invalid,
+        .form-group select:invalid {
+            border-color: var(--danger);
+        }
+
+        .form-group input:valid,
+        .form-group select:valid {
+            border-color: var(--success);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <h1>🔍 Keyword Research</h1>
+        <p>Apple App Store SEO Analysis & Scoring</p>
+    </div>
+
+    <div class="mode-tabs">
+        <button class="mode-tab active" onclick="switchMode('single')">📊 Single Keyword</button>
+        <button class="mode-tab" onclick="switchMode('batch')">📋 Batch (up to 20)</button>
+    </div>
+
+    <!-- SINGLE KEYWORD MODE -->
+    <div id="singleMode" class="mode-section active">
+        <div class="row">
+            <div class="col form-group">
+                <label>Country</label>
+                <select id="singleCountry" onchange="updateSingleLanguages()">
+                    <!-- Populated by JS -->
+                </select>
+            </div>
+            <div class="col form-group">
+                <label>Language</label>
+                <select id="singleLanguage">
+                    <option value="">Select a language...</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>Keyword to Evaluate</label>
+            <input type="text" id="keyword" placeholder="e.g. photo editor, video maker" value="">
+        </div>
+
+        <div class="row">
+            <div class="col form-group">
+                <label>Your App ID (Optional)</label>
+                <input type="text" id="appId" placeholder="e.g. 123456789">
+            </div>
+        </div>
+
+        <button id="calcBtn" onclick="runScoring()">🚀 Evaluate Keyword</button>
+
+        <div id="singleLoading" class="loading-container">
+            <div class="spinner"></div>
+            <div style="margin-top: 12px; color: var(--text-secondary);">Querying Apple Search API...</div>
+            <div class="progress-bar">
+                <div class="progress-fill" style="width: 50%;"></div>
+            </div>
+        </div>
+
+        <div id="singleResults" style="display: none;" class="results-container">
+            <table class="datatable">
+                <thead>
+                    <tr>
+                        <th>Metric</th>
+                        <th>Score</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Traffic Potential</td>
+                        <td id="res-traffic">--</td>
+                    </tr>
+                    <tr>
+                        <td>Difficulty Level</td>
+                        <td id="res-diff">--</td>
+                    </tr>
+                    <tr>
+                        <td>Competitiveness</td>
+                        <td id="res-comp">--</td>
+                    </tr>
+                    <tr>
+                        <td>Your Ranking Position</td>
+                        <td id="res-pos">--</td>
+                    </tr>
+                    <tr>
+                        <td style="font-weight: 600;">Overall Opportunity</td>
+                        <td id="res-overall" style="font-weight: 600;">--</td>
+                    </tr>
+                </tbody>
+            </table>
+            <div id="insights"
+                style="margin-top: 12px; padding: 12px; background: var(--card-bg); border-radius: 8px; font-size: 13px; color: var(--text-secondary);">
+                <!-- Insights injected here -->
+            </div>
+            <div class="action-buttons">
+                <button onclick="resetSingleMode()">← Back</button>
+                <button onclick="document.getElementById('keyword').focus()">Test Another</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- BATCH KEYWORDS MODE -->
+    <div id="batchMode" class="mode-section">
+        <div class="info-box">
+            💡 Paste up to 20 keywords (one per line). Results will be saved to your Google Sheet automatically.
+        </div>
+
+        <div class="row">
+            <div class="col form-group">
+                <label>Country</label>
+                <select id="batchCountry" onchange="updateBatchLanguages()">
+                    <!-- Populated by JS -->
+                </select>
+            </div>
+            <div class="col form-group">
+                <label>Language</label>
+                <select id="batchLanguage">
+                    <option value="">Select a language...</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>Keywords (one per line)</label>
+            <textarea id="batchKeywords" placeholder="photo editor
+video maker
+language learning
+music player
+..."></textarea>
+        </div>
+
+        <div class="form-group">
+            <label>Your App ID (Optional)</label>
+            <input type="text" id="batchAppId" placeholder="e.g. 123456789">
+        </div>
+
+        <button id="batchBtn" onclick="runBatchScoring()">🚀 Analyze & Save</button>
+
+        <div id="batchLoading" class="loading-container">
+            <div class="spinner"></div>
+            <div style="margin-top: 12px; color: var(--text-secondary);">Processing keywords...</div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div class="progress-text">
+                <span id="progressText">0/0</span> keywords processed
+            </div>
+        </div>
+
+        <div id="batchResults" style="display: none;" class="results-container">
+            <table class="datatable">
+                <thead>
+                    <tr>
+                        <th>Keyword</th>
+                        <th>Traffic</th>
+                        <th>Difficulty</th>
+                        <th>Overall</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="batchTableBody">
+                    <!-- Populated by JS -->
+                </tbody>
+            </table>
+            <div id="batchError" style="display: none;"></div>
+        </div>
+
+        <div class="action-buttons" id="batchActions" style="display: none;">
+            <button onclick="resetBatchMode()">← Back</button>
+            <button onclick="downloadBatchResults()">📥 Download Results</button>
+        </div>
+    </div>
+
+    <script>
+        // ========== LOCALIZATIONS DATA ==========
+        const LOCALIZATIONS = [
+            ["es", "ca", "Catalan", "Spain"],
+            ["sa", "ar", "Arabic", "Saudi Arabia"],
+            ["cn", "zh_cn", "Chinese (Simplified)", "China"],
+            ["tw", "zh_tw", "Chinese (Traditional)", "Taiwan"],
+            ["hr", "hr", "Croatian", "Croatia"],
+            ["cz", "cs", "Czech", "Czech Republic"],
+            ["dk", "da", "Danish", "Denmark"],
+            ["nl", "nl", "Dutch", "Netherlands"],
+            ["au", "en_au", "English (Australia)", "Australia"],
+            ["ca", "en_ca", "English (Canada)", "Canada"],
+            ["gb", "en_gb", "English (U.K.)", "United Kingdom"],
+            ["us", "en", "English (U.S.)", "United States"],
+            ["fi", "fi", "Finnish", "Finland"],
+            ["fr", "fr", "French", "France"],
+            ["ca", "fr_ca", "French (Canada)", "Canada"],
+            ["de", "de", "German", "Germany"],
+            ["gr", "el", "Greek", "Greece"],
+            ["il", "he", "Hebrew", "Israel"],
+            ["in", "hi", "Hindi", "India"],
+            ["hu", "hu", "Hungarian", "Hungary"],
+            ["id", "id", "Indonesian", "Indonesia"],
+            ["it", "it", "Italian", "Italy"],
+            ["jp", "ja", "Japanese", "Japan"],
+            ["kr", "ko", "Korean", "Korea (South)"],
+            ["my", "ms", "Malay", "Malaysia"],
+            ["no", "nb", "Norwegian", "Norway"],
+            ["pl", "pl", "Polish", "Poland"],
+            ["br", "pt_br", "Portuguese (Brazil)", "Brazil"],
+            ["pt", "pt", "Portuguese (Portugal)", "Portugal"],
+            ["ro", "ro", "Romanian", "Romania"],
+            ["ru", "ru", "Russian", "Russia"],
+            ["sk", "sk", "Slovak", "Slovakia"],
+            ["mx", "es_mx", "Spanish (Mexico)", "Mexico"],
+            ["es", "es", "Spanish (Spain)", "Spain"],
+            ["se", "sv", "Swedish", "Sweden"],
+            ["th", "th", "Thai", "Thailand"],
+            ["tr", "tr", "Turkish", "Turkey"],
+            ["ua", "uk", "Ukrainian", "Ukraine"],
+            ["vn", "vi", "Vietnamese", "Vietnam"]
+        ];
+
+        // ========== INIT ==========
+        function init() {
+            populateCountries();
+            updateSingleLanguages();
+            updateBatchLanguages();
+        }
+
+        function getCountries() {
+            const countries = new Map();
+            LOCALIZATIONS.forEach(([countryCode, langCode, langName, countryName]) => {
+                if (!countries.has(countryCode)) {
+                    countries.set(countryCode, countryName);
+                }
+            });
+            return Array.from(countries.entries())
+                .sort((a, b) => a[1].localeCompare(b[1]));
+        }
+
+        function getLanguagesForCountry(countryCode) {
+            return LOCALIZATIONS.filter(([code]) => code === countryCode)
+                .map(([, langCode, langName]) => [langCode, langName]);
+        }
+
+        function populateCountries() {
+            const countries = getCountries();
+            [
+                { select: document.getElementById('singleCountry'), default: 'us' },
+                { select: document.getElementById('batchCountry'), default: 'us' }
+            ].forEach(({ select, default: defaultVal }) => {
+                select.innerHTML = '';
+                countries.forEach(([code, name]) => {
+                    const option = document.createElement('option');
+                    option.value = code;
+                    option.textContent = name;
+                    if (code === defaultVal) option.selected = true;
+                    select.appendChild(option);
+                });
+            });
+        }
+
+        function updateSingleLanguages() {
+            updateLanguages('singleCountry', 'singleLanguage');
+        }
+
+        function updateBatchLanguages() {
+            updateLanguages('batchCountry', 'batchLanguage');
+        }
+
+        function updateLanguages(countrySelectId, languageSelectId) {
+            const countrySelect = document.getElementById(countrySelectId);
+            const langSelect = document.getElementById(languageSelectId);
+            const countryCode = countrySelect.value;
+            const languages = getLanguagesForCountry(countryCode);
+
+            langSelect.innerHTML = '';
+            languages.forEach(([code, name]) => {
+                const option = document.createElement('option');
+                option.value = code;
+                option.textContent = name;
+                if (langSelect.options.length === 0) option.selected = true;
+                langSelect.appendChild(option);
+            });
+        }
+
+        // ========== MODE SWITCHING ==========
+        function switchMode(mode) {
+            document.querySelectorAll('.mode-section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.mode-tab').forEach(t => t.classList.remove('active'));
+            document.getElementById(mode + 'Mode').classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // ========== SINGLE KEYWORD MODE ==========
+        function getScoreClass(score) {
+            score = parseFloat(score);
+            if (score >= 7) return 'score-high';
+            if (score >= 4) return 'score-med';
+            return 'score-low';
+        }
+
+        function getDiffClass(score) {
+            score = parseFloat(score);
+            if (score >= 7) return 'score-low';
+            if (score >= 4) return 'score-med';
+            return 'score-high';
+        }
+
+        async function runScoring() {
+            const keyword = document.getElementById('keyword').value.trim();
+            const appId = document.getElementById('appId').value.trim();
+            const langCode = document.getElementById('singleLanguage').value;
+            const resultsDiv = document.getElementById('singleResults');
+
+            // Validation
+            if (!keyword) {
+                showError("Please enter a keyword to evaluate.", resultsDiv);
+                return;
+            }
+
+            if (keyword.length < 1 || keyword.length > 100) {
+                showError("Keyword must be between 1 and 100 characters.", resultsDiv);
+                return;
+            }
+
+            if (!langCode) {
+                showError("Please select a language.", resultsDiv);
+                return;
+            }
+
+            // Validate app ID format if provided
+            if (appId && isNaN(appId)) {
+                showError("App ID must be numeric (numbers only).", resultsDiv);
+                return;
+            }
+
+            document.getElementById('calcBtn').disabled = true;
+            resultsDiv.style.display = 'none';
+            document.getElementById('singleLoading').classList.add('show');
+
+            try {
+                const result = await evaluateKeyword(keyword, appId, langCode);
+                showSingleResults(result);
+            } catch (err) {
+                showError(err.message, document.getElementById('singleLoading'));
+                resultsDiv.style.display = 'none';
+            } finally {
+                document.getElementById('singleLoading').classList.remove('show');
+                document.getElementById('calcBtn').disabled = false;
+            }
+        }
+
+        function showSingleResults(data) {
+            document.getElementById('singleLoading').classList.remove('show');
+            document.getElementById('singleResults').style.display = 'block';
+
+            const trScore = parseFloat(data.trafficScore || 0).toFixed(1);
+            const diScore = parseFloat(data.difficultyScore || 0).toFixed(1);
+            const coScore = parseFloat(data.competitiveness || 0).toFixed(1);
+            const ovScore = parseFloat(data.overallScore || 0).toFixed(1);
+
+            document.getElementById('res-traffic').innerHTML = `<span class="score-badge ${getScoreClass(trScore)}">${trScore}/10</span>`;
+            document.getElementById('res-diff').innerHTML = `<span class="score-badge ${getDiffClass(diScore)}">${diScore}/10</span>`;
+            document.getElementById('res-comp').innerHTML = `<span class="score-badge ${getDiffClass(coScore)}">${coScore}/10</span>`;
+            document.getElementById('res-pos').innerText = data.position > 0 ? '# Rank ' + data.position : '— Not in Top 100';
+            document.getElementById('res-overall').innerHTML = `<span class="score-badge ${getScoreClass(ovScore)}">${ovScore}/10</span>`;
+
+            let actionText = '';
+            if (ovScore > 7) {
+                actionText = '🔥 Excellent! High-value keyword. Prioritize for Title/Subtitle placement.';
+            } else if (ovScore > 4) {
+                actionText = '✅ Good keyword. Use in Keywords field or app description.';
+            } else {
+                actionText = '⚠️ Low opportunity. High difficulty or low search volume. Consider alternatives.';
+            }
+            document.getElementById('insights').innerText = actionText;
+
+            document.getElementById('calcBtn').disabled = false;
+        }
+
+        function resetSingleMode() {
+            document.getElementById('singleResults').style.display = 'none';
+            document.getElementById('calcBtn').disabled = false;
+            document.getElementById('keyword').focus();
+        }
+
+        // ========== BATCH MODE ==========
+        async function runBatchScoring() {
+            const keywordsText = document.getElementById('batchKeywords').value.trim();
+            const loadingDiv = document.getElementById('batchLoading');
+            const resultsDiv = document.getElementById('batchResults');
+
+            // Validation
+            if (!keywordsText) {
+                showError("Please enter at least one keyword (one per line).", resultsDiv);
+                return;
+            }
+
+            const keywords = keywordsText.split('\n')
+                .map(k => k.trim())
+                .filter(k => k.length > 0);
+
+            if (keywords.length === 0) {
+                showError("Please enter at least one keyword.", resultsDiv);
+                return;
+            }
+
+            if (keywords.length > 20) {
+                showError(`Maximum 20 keywords allowed. You entered ${keywords.length}.`, resultsDiv);
+                return;
+            }
+
+            // Validate individual keywords
+            for (let i = 0; i < keywords.length; i++) {
+                if (keywords[i].length > 100) {
+                    showError(`Keyword "${keywords[i].substring(0, 20)}..." is too long (max 100 characters).`, resultsDiv);
+                    return;
+                }
+            }
+
+            const appId = document.getElementById('batchAppId').value.trim();
+            const langCode = document.getElementById('batchLanguage').value;
+
+            // Validate app ID format if provided
+            if (appId && isNaN(appId)) {
+                showError("App ID must be numeric (numbers only).", resultsDiv);
+                return;
+            }
+
+            if (!langCode) {
+                showError("Please select a language.", resultsDiv);
+                return;
+            }
+
+            document.getElementById('batchBtn').disabled = true;
+            resultsDiv.style.display = 'none';
+            document.getElementById('batchActions').style.display = 'none';
+            loadingDiv.classList.add('show');
+
+            try {
+                const result = await evaluateBatchKeywords(keywords, appId, langCode);
+                showBatchResults(result);
+                showSuccess("Batch analysis completed successfully!", loadingDiv);
+            } catch (err) {
+                showError(err.message, loadingDiv);
+                resultsDiv.style.display = 'none';
+            } finally {
+                loadingDiv.classList.remove('show');
+                document.getElementById('batchBtn').disabled = false;
+            }
+        }
+
+        function showBatchResults(result) {
+            document.getElementById('batchLoading').classList.remove('show');
+            document.getElementById('batchResults').style.display = 'block';
+            document.getElementById('batchActions').style.display = 'grid';
+
+            const tbody = document.getElementById('batchTableBody');
+            tbody.innerHTML = '';
+
+            if (!result.results || result.results.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--text-secondary);">No results</td></tr>';
+                return;
+            }
+
+            result.results.forEach(item => {
+                const tr = document.createElement('tr');
+
+                const trScore = parseFloat(item.trafficScore || 0).toFixed(1);
+                const diScore = parseFloat(item.difficultyScore || 0).toFixed(1);
+                const ovScore = parseFloat(item.overallScore || 0).toFixed(1);
+
+                const statusClass = item.error ? 'status-error' : 'status-success';
+                const statusText = item.error ? ('❌ ' + item.error) : '✅';
+
+                tr.innerHTML = `
+          <td><strong>${escapeHtml(item.keyword)}</strong></td>
+          <td><span class="score-badge ${getScoreClass(trScore)}">${trScore}</span></td>
+          <td><span class="score-badge ${getDiffClass(diScore)}">${diScore}</span></td>
+          <td><span class="score-badge ${getScoreClass(ovScore)}">${ovScore}</span></td>
+          <td><span class="${statusClass}">${statusText}</span></td>
+        `;
+                tbody.appendChild(tr);
+            });
+
+            if (result.sheetUrl) {
+                const msg = document.createElement('div');
+                msg.className = 'success-message';
+                msg.innerHTML = `✅ Results saved! <a href="${escapeHtml(result.sheetUrl)}" target="_blank">View in Google Sheets →</a>`;
+                document.getElementById('batchResults').appendChild(msg);
+            }
+
+            document.getElementById('batchBtn').disabled = false;
+        }
+
+        function resetBatchMode() {
+            document.getElementById('batchResults').style.display = 'none';
+            document.getElementById('batchActions').style.display = 'none';
+            document.getElementById('batchKeywords').value = '';
+            document.getElementById('batchBtn').disabled = false;
+            document.getElementById('batchKeywords').focus();
+        }
+
+        function downloadBatchResults() {
+            alert('💾 Download feature coming soon!');
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
+            return text.replace(/[&<>"']/g, m => map[m]);
+        }
+
+        // ========== API CALLS ==========
+        const API_URL = "https://script.google.com/macros/s/AKfycbyi4--RJyMjR47j_zZlpjwOPtflhe8IOno7BbFNZ52fqlTG9a3tzDS8j70M6coAXVZO/exec";
+
+        async function callAPI(data) {
+            const response = await fetch(API_URL, {
+                method: "POST",
+                body: JSON.stringify(data)
+            });
+
+            if (!response.ok) throw new Error('API Error: ' + response.status);
+            return await response.json();
+        }
+
+        // Initialize on load
+        window.addEventListener('load', init);
+    </script>
+</body>
+
+</html>

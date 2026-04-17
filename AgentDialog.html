@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <style>
+    /* ===== Google Material-inspired styling ===== */
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', 'Google Sans', 'Roboto', Arial, sans-serif;
+      background: #ffffff;
+      color: #202124;
+      padding: 24px;
+      line-height: 1.5;
+    }
+
+    /* Header */
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .header-icon {
+      font-size: 32px;
+    }
+
+    .header-text h2 {
+      font-size: 18px;
+      font-weight: 600;
+      color: #202124;
+    }
+
+    .header-text p {
+      font-size: 12px;
+      color: #5f6368;
+      margin-top: 2px;
+    }
+
+    /* Labels */
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 500;
+      color: #5f6368;
+      margin-bottom: 8px;
+    }
+
+    /* Input */
+    .input-wrapper {
+      position: relative;
+      margin-bottom: 8px;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 12px 14px;
+      font-size: 14px;
+      font-family: 'Inter', sans-serif;
+      border: 2px solid #dadce0;
+      border-radius: 8px;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      background: #f8f9fa;
+    }
+
+    input[type="text"]:focus {
+      border-color: #6200ea;
+      box-shadow: 0 0 0 3px rgba(98, 0, 234, 0.15);
+      background: #fff;
+    }
+
+    input[type="text"]::placeholder {
+      color: #9aa0a6;
+      font-style: italic;
+    }
+
+    input[type="text"].input-error {
+      border-color: #c5221f;
+      box-shadow: 0 0 0 3px rgba(197, 34, 31, 0.12);
+    }
+
+    .hint {
+      font-size: 11px;
+      color: #9aa0a6;
+      margin-bottom: 16px;
+      padding-left: 2px;
+    }
+
+    .hint code {
+      background: #f1f3f4;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: 'Roboto Mono', monospace;
+      font-size: 11px;
+      color: #6200ea;
+    }
+
+    /* Range slider */
+    .slider-group {
+      margin-bottom: 20px;
+    }
+
+    .slider-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .slider-value {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 36px;
+      height: 28px;
+      padding: 0 10px;
+      background: #6200ea;
+      color: #fff;
+      border-radius: 14px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      height: 6px;
+      -webkit-appearance: none;
+      appearance: none;
+      background: linear-gradient(to right, #6200ea var(--val), #dadce0 var(--val));
+      border-radius: 3px;
+      outline: none;
+      cursor: pointer;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      background: #6200ea;
+      border-radius: 50%;
+      border: 3px solid #fff;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+      cursor: pointer;
+      transition: transform 0.15s;
+    }
+
+    input[type="range"]::-webkit-slider-thumb:hover {
+      transform: scale(1.2);
+    }
+
+    .slider-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 10px;
+      color: #9aa0a6;
+      margin-top: 4px;
+    }
+
+    /* Buttons */
+    .actions {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    button {
+      padding: 10px 24px;
+      font-size: 14px;
+      font-weight: 500;
+      font-family: 'Inter', sans-serif;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background: #6200ea;
+      color: #fff;
+      flex: 1;
+    }
+
+    .btn-primary:hover {
+      background: #4a00b0;
+      box-shadow: 0 2px 8px rgba(98, 0, 234, 0.3);
+    }
+
+    .btn-primary:disabled {
+      background: #b388ff;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    .btn-danger {
+      background: #fce8e6;
+      color: #c5221f;
+    }
+
+    .btn-danger:hover {
+      background: #f5c6cb;
+    }
+
+    .btn-secondary {
+      background: #f1f3f4;
+      color: #5f6368;
+    }
+
+    .btn-secondary:hover {
+      background: #e8eaed;
+    }
+
+    /* Status area */
+    .status-box {
+      padding: 14px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      display: none;
+      align-items: flex-start;
+      gap: 10px;
+      margin-top: 4px;
+      word-break: break-word;
+      white-space: pre-wrap;
+    }
+
+    .status-loading {
+      background: #ede7f6;
+      color: #6200ea;
+      display: flex;
+      border: 1px solid #b388ff;
+    }
+
+    .status-success {
+      background: #e6f4ea;
+      color: #137333;
+      display: flex;
+      border: 1px solid #a8dab5;
+    }
+
+    .status-error {
+      background: #fce8e6;
+      color: #c5221f;
+      display: flex;
+      border: 1px solid #f5c6cb;
+    }
+
+    .status-warning {
+      background: #fef7e0;
+      color: #7c5e00;
+      display: flex;
+      border: 1px solid #fdd663;
+    }
+
+    /* Spinner */
+    .spinner {
+      width: 18px;
+      height: 18px;
+      border: 2.5px solid #b388ff;
+      border-top-color: #6200ea;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Progress bar */
+    .progress-container {
+      display: none;
+      margin-top: 16px;
+    }
+
+    .progress-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+
+    .progress-label {
+      font-size: 12px;
+      color: #5f6368;
+      font-weight: 500;
+    }
+
+    .progress-count {
+      font-size: 12px;
+      color: #6200ea;
+      font-weight: 600;
+    }
+
+    .progress-bar-bg {
+      width: 100%;
+      height: 8px;
+      background: #e8eaed;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #6200ea, #b388ff);
+      border-radius: 4px;
+      transition: width 0.5s ease;
+      width: 0%;
+    }
+
+    .progress-app-name {
+      font-size: 11px;
+      color: #9aa0a6;
+      margin-top: 6px;
+      font-style: italic;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Info bar */
+    .info-bar {
+      margin-top: 16px;
+      padding: 10px 14px;
+      background: #f8f9fa;
+      border-radius: 6px;
+      border-left: 3px solid #6200ea;
+      font-size: 11px;
+      color: #5f6368;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Header -->
+  <div class="header">
+    <span class="header-icon">🤖</span>
+    <div class="header-text">
+      <h2>Keyword Agent</h2>
+      <p>Search, discover & scrape localization data for ranked apps</p>
+    </div>
+  </div>
+
+  <!-- Keyword Input -->
+  <label for="keywordInput">Search Keyword</label>
+  <div class="input-wrapper">
+    <input
+      type="text"
+      id="keywordInput"
+      placeholder="e.g., VPN, photo editor, weather"
+      autocomplete="off"
+      spellcheck="false"
+    />
+  </div>
+  <div class="hint">
+    Enter a keyword to find top-ranked apps on the App Store.
+    Example: <code>VPN</code>, <code>photo editor</code>, <code>fitness tracker</code>
+  </div>
+
+  <!-- App Limit Slider -->
+  <div class="slider-group">
+    <div class="slider-header">
+      <label for="limitSlider" style="margin-bottom: 0;">Number of Apps</label>
+      <span class="slider-value" id="limitValue">30</span>
+    </div>
+    <input
+      type="range"
+      id="limitSlider"
+      min="5"
+      max="50"
+      value="30"
+      step="5"
+      style="--val: 51%;"
+    />
+    <div class="slider-labels">
+      <span>5</span>
+      <span>10</span>
+      <span>15</span>
+      <span>20</span>
+      <span>25</span>
+      <span>30</span>
+      <span>35</span>
+      <span>40</span>
+      <span>45</span>
+      <span>50</span>
+    </div>
+  </div>
+
+  <!-- Buttons -->
+  <div class="actions" id="mainActions">
+    <button class="btn-primary" id="btnStart" onclick="startAgent()">
+      🤖 Launch Agent
+    </button>
+    <button class="btn-secondary" onclick="google.script.host.close()">
+      Cancel
+    </button>
+  </div>
+
+  <!-- Stop button (hidden initially) -->
+  <div class="actions" id="stopActions" style="display: none;">
+    <button class="btn-danger" id="btnStop" onclick="stopAgent()">
+      🛑 Stop Agent
+    </button>
+    <button class="btn-secondary" onclick="google.script.host.close()">
+      Close
+    </button>
+  </div>
+
+  <!-- Status -->
+  <div class="status-box" id="statusBox">
+    <div class="spinner" id="spinner"></div>
+    <span id="statusText"></span>
+  </div>
+
+  <!-- Progress bar -->
+  <div class="progress-container" id="progressContainer">
+    <div class="progress-header">
+      <span class="progress-label">Processing apps...</span>
+      <span class="progress-count" id="progressCount">0/0</span>
+    </div>
+    <div class="progress-bar-bg">
+      <div class="progress-bar-fill" id="progressFill"></div>
+    </div>
+    <div class="progress-app-name" id="progressAppName">Waiting...</div>
+  </div>
+
+  <!-- Info -->
+  <div class="info-bar">
+    🤖 The agent searches the App Store, then scrapes 39 localizations per app.<br>
+    ⏱️ Large batches run automatically in the background using triggers.<br>
+    📊 Check the master sheet to track real-time progress.<br>
+    🛡️ All errors are automatically reported to the developer.
+  </div>
+
+  <script>
+    // ============================================================
+    // INITIALIZATION
+    // ============================================================
+
+    var pollInterval = null;
+
+    try {
+      document.getElementById("keywordInput").focus();
+    } catch (e) { /* ignore */ }
+
+    // Enter key to submit
+    try {
+      document.getElementById("keywordInput").addEventListener("keypress", function(e) {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          startAgent();
+        }
+      });
+    } catch (e) { /* ignore */ }
+
+    // Clear error on input
+    try {
+      document.getElementById("keywordInput").addEventListener("input", function() {
+        this.classList.remove("input-error");
+      });
+    } catch (e) { /* ignore */ }
+
+    // Slider value update
+    try {
+      var slider = document.getElementById("limitSlider");
+      var valueDisplay = document.getElementById("limitValue");
+      slider.addEventListener("input", function() {
+        valueDisplay.textContent = this.value;
+        var pct = ((this.value - 5) / (50 - 5)) * 100;
+        this.style.setProperty("--val", pct + "%");
+      });
+    } catch (e) { /* ignore */ }
+
+    // ============================================================
+    // AGENT LAUNCH
+    // ============================================================
+
+    function startAgent() {
+      var keywordEl = document.getElementById("keywordInput");
+      var keyword = (keywordEl.value || "").trim();
+
+      // Validate
+      if (!keyword) {
+        keywordEl.classList.add("input-error");
+        showStatus("error", "⚠️ Please enter a search keyword.");
+        keywordEl.focus();
+        return;
+      }
+
+      if (keyword.length < 2) {
+        keywordEl.classList.add("input-error");
+        showStatus("error", "⚠️ Keyword is too short. Enter at least 2 characters.");
+        keywordEl.focus();
+        return;
+      }
+
+      if (keyword.length > 100) {
+        keywordEl.classList.add("input-error");
+        showStatus("error", "⚠️ Keyword is too long. Keep it under 100 characters.");
+        keywordEl.focus();
+        return;
+      }
+
+      keywordEl.classList.remove("input-error");
+
+      var limit = parseInt(document.getElementById("limitSlider").value) || 30;
+
+      // Disable UI
+      var btn = document.getElementById("btnStart");
+      btn.disabled = true;
+      btn.innerText = "⏳ Searching...";
+      keywordEl.disabled = true;
+      document.getElementById("limitSlider").disabled = true;
+
+      showStatus("loading", "🔍 Searching App Store for \"" + keyword + "\"...\nThis may take a few seconds.");
+
+      // Set a 6-min timeout
+      var timeoutId = setTimeout(function() {
+        showStatus("warning", "⏱️ The initial search is taking longer than expected.\nCheck the sheet for any partial results.");
+        resetUI();
+      }, 360000);
+
+      // Call server
+      try {
+        google.script.run
+          .withSuccessHandler(function(result) {
+            clearTimeout(timeoutId);
+            onAgentStarted(result);
+          })
+          .withFailureHandler(function(error) {
+            clearTimeout(timeoutId);
+            onAgentError(error);
+          })
+          .startKeywordAgent(keyword, limit);
+      } catch (callError) {
+        clearTimeout(timeoutId);
+        showStatus("error", "❌ Failed to start the agent.\n\n" + (callError.message || "Unknown error"));
+        resetUI();
+      }
+    }
+
+    // ============================================================
+    // CALLBACKS
+    // ============================================================
+
+    function onAgentStarted(result) {
+      if (!result) {
+        showStatus("warning", "⚠️ Agent started but no status returned.\nCheck the sheet for results.");
+        showStopUI();
+        return;
+      }
+
+      // Check if agent is still running (needs continuation)
+      if (result.indexOf("continue") !== -1 || result.indexOf("background") !== -1) {
+        showStatus("loading", result);
+        showStopUI();
+        startPolling();
+      } else {
+        // Agent completed in one run
+        showStatus("success", result);
+        resetUI();
+      }
+    }
+
+    function onAgentError(error) {
+      var msg = "❌ Error: ";
+      if (!error) {
+        msg += "Unknown error occurred.";
+      } else if (error.message) {
+        msg += error.message;
+      } else {
+        msg += String(error);
+      }
+
+      msg += "\n\n🛡️ The developer has been automatically notified.";
+      showStatus("error", msg);
+      resetUI();
+    }
+
+    // ============================================================
+    // STOP AGENT
+    // ============================================================
+
+    function stopAgent() {
+      showStatus("loading", "🛑 Stopping agent...");
+      stopPolling();
+
+      try {
+        google.script.run
+          .withSuccessHandler(function(result) {
+            showStatus("warning", result || "Agent stopped.");
+            resetUI();
+          })
+          .withFailureHandler(function(error) {
+            showStatus("error", "Failed to stop agent: " + (error.message || "Unknown error"));
+            resetUI();
+          })
+          .stopKeywordAgent();
+      } catch (e) {
+        showStatus("error", "Failed to stop agent: " + e.message);
+        resetUI();
+      }
+    }
+
+    // ============================================================
+    // POLLING FOR PROGRESS
+    // ============================================================
+
+    function startPolling() {
+      document.getElementById("progressContainer").style.display = "block";
+
+      pollInterval = setInterval(function() {
+        try {
+          google.script.run
+            .withSuccessHandler(function(status) {
+              updateProgress(status);
+            })
+            .withFailureHandler(function() {
+              // Ignore poll failures silently
+            })
+            .getAgentStatus();
+        } catch (e) {
+          // ignore
+        }
+      }, 5000); // Poll every 5 seconds
+    }
+
+    function stopPolling() {
+      if (pollInterval) {
+        clearInterval(pollInterval);
+        pollInterval = null;
+      }
+    }
+
+    function updateProgress(status) {
+      if (!status) return;
+
+      var countEl = document.getElementById("progressCount");
+      var fillEl = document.getElementById("progressFill");
+      var nameEl = document.getElementById("progressAppName");
+
+      countEl.textContent = status.current + "/" + status.total;
+
+      var pct = status.total > 0 ? Math.round((status.current / status.total) * 100) : 0;
+      fillEl.style.width = pct + "%";
+
+      nameEl.textContent = status.currentApp || "Processing...";
+
+      if (!status.running) {
+        // Agent finished
+        stopPolling();
+        showStatus("success", "🤖 Agent complete! All " + status.total + " apps processed for \"" + status.keyword + "\".\n\n📊 Check the master sheet for results.");
+        resetUI();
+        document.getElementById("progressContainer").style.display = "none";
+      }
+    }
+
+    // ============================================================
+    // UI HELPERS
+    // ============================================================
+
+    function showStopUI() {
+      document.getElementById("mainActions").style.display = "none";
+      document.getElementById("stopActions").style.display = "flex";
+    }
+
+    function resetUI() {
+      var btn = document.getElementById("btnStart");
+      btn.disabled = false;
+      btn.innerText = "🤖 Launch Agent";
+      document.getElementById("keywordInput").disabled = false;
+      document.getElementById("limitSlider").disabled = false;
+      document.getElementById("mainActions").style.display = "flex";
+      document.getElementById("stopActions").style.display = "none";
+    }
+
+    function showStatus(type, message) {
+      var box = document.getElementById("statusBox");
+      var spinner = document.getElementById("spinner");
+      var text = document.getElementById("statusText");
+
+      box.className = "status-box";
+
+      if (type === "loading") {
+        box.classList.add("status-loading");
+        spinner.style.display = "block";
+      } else if (type === "success") {
+        box.classList.add("status-success");
+        spinner.style.display = "none";
+      } else if (type === "error") {
+        box.classList.add("status-error");
+        spinner.style.display = "none";
+      } else if (type === "warning") {
+        box.classList.add("status-warning");
+        spinner.style.display = "none";
+      }
+
+      text.innerText = message;
+      box.style.display = "flex";
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,1202 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <base target="_top">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', 'Google Sans', 'Roboto', Arial, sans-serif;
+      background: #ffffff;
+      color: #1a1a2e;
+      padding: 0;
+      line-height: 1.5;
+      overflow: hidden;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ==================== STEPPER ==================== */
+    .stepper {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      padding: 14px 20px;
+      background: linear-gradient(135deg, #1a237e 0%, #311b92 100%);
+      flex-shrink: 0;
+    }
+
+    .step-dot {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 700;
+      color: rgba(255, 255, 255, 0.4);
+      background: rgba(255, 255, 255, 0.1);
+      transition: all 0.3s ease;
+      flex-shrink: 0;
+    }
+
+    .step-dot.active {
+      background: #ffd740;
+      color: #1a237e;
+      box-shadow: 0 0 12px rgba(255, 215, 64, 0.5);
+      transform: scale(1.15);
+    }
+
+    .step-dot.done {
+      background: #69f0ae;
+      color: #1b5e20;
+    }
+
+    .step-line {
+      width: 40px;
+      height: 2px;
+      background: rgba(255, 255, 255, 0.15);
+      flex-shrink: 0;
+    }
+
+    .step-line.done {
+      background: #69f0ae;
+    }
+
+    .step-label {
+      font-size: 10px;
+      color: rgba(255, 255, 255, 0.7);
+      text-align: center;
+      padding: 4px 16px 0;
+      display: none;
+    }
+
+    /* ==================== CONTENT AREA ==================== */
+    .content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 18px 20px;
+    }
+
+    .step-panel {
+      display: none;
+    }
+
+    .step-panel.active {
+      display: block;
+    }
+
+    .section-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: #1a237e;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* ==================== FORMS ==================== */
+    label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: #5f6368;
+      margin-bottom: 5px;
+      margin-top: 12px;
+    }
+
+    label:first-child {
+      margin-top: 0;
+    }
+
+    input[type="text"],
+    input[type="password"],
+    select,
+    textarea {
+      width: 100%;
+      padding: 10px 12px;
+      font-size: 13px;
+      font-family: 'Inter', sans-serif;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      outline: none;
+      background: #fafafa;
+      color: #1a1a2e;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      border-color: #311b92;
+      box-shadow: 0 0 0 3px rgba(49, 27, 146, 0.1);
+      background: #fff;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 60px;
+      font-family: inherit;
+    }
+
+    .row {
+      display: flex;
+      gap: 10px;
+    }
+
+    .row>* {
+      flex: 1;
+    }
+
+    /* ==================== COMPETITOR CARDS ==================== */
+    .comp-card {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border: 1px solid #e8eaf6;
+      border-radius: 8px;
+      margin-bottom: 6px;
+      background: #fafafe;
+      transition: all 0.2s;
+    }
+
+    .comp-card:hover {
+      background: #ede7f6;
+      border-color: #b39ddb;
+    }
+
+    .comp-card.excluded {
+      opacity: 0.4;
+      background: #f5f5f5;
+    }
+
+    .comp-toggle {
+      width: 20px;
+      height: 20px;
+      border-radius: 4px;
+      border: 2px solid #b39ddb;
+      background: #fff;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 14px;
+      transition: all 0.2s;
+    }
+
+    .comp-toggle.checked {
+      background: #311b92;
+      border-color: #311b92;
+      color: #fff;
+    }
+
+    .comp-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .comp-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: #1a237e;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .comp-meta {
+      font-size: 11px;
+      color: #9e9e9e;
+      margin-top: 1px;
+    }
+
+    .comp-title {
+      font-size: 11px;
+      color: #5c6bc0;
+      font-style: italic;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .comp-rating {
+      text-align: right;
+      flex-shrink: 0;
+    }
+
+    .comp-stars {
+      font-size: 12px;
+      color: #ffa000;
+    }
+
+    .comp-reviews {
+      font-size: 10px;
+      color: #9e9e9e;
+    }
+
+    .filter-bar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      background: #ede7f6;
+      border-radius: 8px;
+      margin-bottom: 12px;
+      font-size: 12px;
+      color: #4527a0;
+    }
+
+    /* ==================== KEYWORD CHIPS ==================== */
+    .kw-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .kw-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 5px 10px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: 1px solid transparent;
+    }
+
+    .kw-chip:hover {
+      transform: scale(1.05);
+    }
+
+    .kw-chip.excluded {
+      opacity: 0.3;
+      text-decoration: line-through;
+    }
+
+    .kw-chip.core {
+      background: #e8f5e9;
+      color: #2e7d32;
+      border-color: #a5d6a7;
+    }
+
+    .kw-chip.feature {
+      background: #e3f2fd;
+      color: #1565c0;
+      border-color: #90caf9;
+    }
+
+    .kw-chip.intent {
+      background: #fff3e0;
+      color: #e65100;
+      border-color: #ffcc80;
+    }
+
+    .kw-chip.brand {
+      background: #fce4ec;
+      color: #c62828;
+      border-color: #ef9a9a;
+    }
+
+    .kw-chip.ai_suggested {
+      background: #f3e5f5;
+      color: #6a1b9a;
+      border-color: #ce93d8;
+    }
+
+    .kw-chip.unassigned {
+      background: #f5f5f5;
+      color: #616161;
+      border-color: #e0e0e0;
+    }
+
+    .kw-score {
+      font-size: 10px;
+      padding: 1px 5px;
+      border-radius: 8px;
+      background: rgba(0, 0, 0, 0.08);
+    }
+
+    .kw-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 10px;
+      font-size: 11px;
+    }
+
+    .kw-legend span {
+      padding: 3px 8px;
+      border-radius: 12px;
+      font-weight: 500;
+    }
+
+    /* ==================== CONTENT PREVIEW ==================== */
+    .content-card {
+      padding: 12px 14px;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      border-left: 4px solid;
+    }
+
+    .content-card.title-card {
+      background: #fff3e0;
+      border-color: #ff9800;
+    }
+
+    .content-card.subtitle-card {
+      background: #e3f2fd;
+      border-color: #2196f3;
+    }
+
+    .content-card.keywords-card {
+      background: #e8f5e9;
+      border-color: #4caf50;
+    }
+
+    .content-card.description-card {
+      background: #fce4ec;
+      border-color: #e91e63;
+    }
+
+    .content-label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+      color: #666;
+    }
+
+    .content-value {
+      width: 100%;
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      border-radius: 6px;
+      padding: 8px 10px;
+      font-size: 13px;
+      font-family: 'Inter', sans-serif;
+      background: rgba(255, 255, 255, 0.8);
+      resize: vertical;
+    }
+
+    .char-count {
+      font-size: 10px;
+      text-align: right;
+      margin-top: 3px;
+    }
+
+    .char-count.over {
+      color: #c62828;
+      font-weight: 700;
+    }
+
+    .char-count.ok {
+      color: #2e7d32;
+    }
+
+    /* Feedback box */
+    .feedback-box {
+      margin-top: 12px;
+      padding: 12px;
+      background: #ede7f6;
+      border-radius: 8px;
+    }
+
+    /* ==================== CHECKBOX FIELDS ==================== */
+    .field-check {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      margin-bottom: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .field-check:hover {
+      background: #ede7f6;
+      border-color: #b39ddb;
+    }
+
+    .field-check input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      accent-color: #311b92;
+    }
+
+    .field-check-label {
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .field-check-hint {
+      font-size: 11px;
+      color: #9e9e9e;
+    }
+
+    /* ==================== BUTTONS ==================== */
+    .btn-bar {
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+      padding: 12px 20px;
+      border-top: 1px solid #e8eaf6;
+      background: #fafafe;
+      flex-shrink: 0;
+    }
+
+    .btn {
+      padding: 9px 20px;
+      font-size: 13px;
+      font-weight: 600;
+      font-family: 'Inter', sans-serif;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #1a237e, #311b92);
+      color: #fff;
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      box-shadow: 0 4px 12px rgba(49, 27, 146, 0.35);
+      transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+      background: #ede7f6;
+      color: #311b92;
+    }
+
+    .btn-secondary:hover:not(:disabled) {
+      background: #d1c4e9;
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: #9e9e9e;
+    }
+
+    .btn-ghost:hover:not(:disabled) {
+      background: #f5f5f5;
+    }
+
+    /* ==================== STATUS ==================== */
+    .status-bar {
+      padding: 10px 14px;
+      border-radius: 8px;
+      margin: 10px 0;
+      font-size: 12px;
+      display: none;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .status-bar.loading {
+      display: flex;
+      background: #ede7f6;
+      color: #311b92;
+    }
+
+    .status-bar.success {
+      display: flex;
+      background: #e8f5e9;
+      color: #2e7d32;
+    }
+
+    .status-bar.error {
+      display: flex;
+      background: #fce4ec;
+      color: #c62828;
+    }
+
+    .spinner-sm {
+      width: 16px;
+      height: 16px;
+      border: 2px solid #b39ddb;
+      border-top-color: #311b92;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      flex-shrink: 0;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    /* ==================== ADVANCED TOGGLE ==================== */
+    .adv-toggle {
+      background: #f5f5f5;
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #757575;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 12px;
+    }
+
+    .adv-toggle:hover {
+      background: #eeeeee;
+    }
+
+    .adv-panel {
+      display: none;
+      padding-left: 10px;
+      border-left: 3px solid #311b92;
+      margin-top: 8px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ==================== STEPPER ==================== -->
+  <div class="stepper" id="stepper">
+    <div class="step-dot active" id="dot0">1</div>
+    <div class="step-line" id="line0"></div>
+    <div class="step-dot" id="dot1">2</div>
+    <div class="step-line" id="line1"></div>
+    <div class="step-dot" id="dot2">3</div>
+    <div class="step-line" id="line2"></div>
+    <div class="step-dot" id="dot3">4</div>
+    <div class="step-line" id="line3"></div>
+    <div class="step-dot" id="dot4">5</div>
+  </div>
+
+  <!-- ==================== CONTENT ==================== -->
+  <div class="content" id="contentArea">
+
+    <!-- ======= STEP 0: SETUP ======= -->
+    <div class="step-panel active" id="panel0">
+      <div class="section-title">⚙️ ASO Configuration</div>
+
+      <label>App Niche *</label>
+      <input type="text" id="inNiche" placeholder="e.g. Photo Editor, Translation App" />
+
+      <label>Brand Name (optional — stays in English)</label>
+      <input type="text" id="inBrand" placeholder="e.g. GoLingo, SnapEdit" />
+
+      <div class="row">
+        <div>
+          <label>Language *</label>
+          <select id="inLang" disabled>
+            <option>Loading...</option>
+          </select>
+        </div>
+        <div>
+          <label>AI Model</label>
+          <select id="inModel">
+            <optgroup label="✅ Google Gemini">
+              <option value="gemini-2.5-flash" selected>Gemini 2.5 Flash</option>
+              <option value="gemini-2.5-flash-lite">Gemini 2.5 Flash-Lite</option>
+              <option value="gemini-2.5-pro">Gemini 2.5 Pro</option>
+            </optgroup>
+            <optgroup label="⚡ Groq">
+              <option value="llama-3.3-70b-versatile">LLaMA 3.3 70B</option>
+              <option value="mixtral-8x7b-32768">Mixtral 8x7b</option>
+            </optgroup>
+          </select>
+        </div>
+      </div>
+
+      <label>API Key *</label>
+      <input type="password" id="inApiKey" placeholder="Gemini or Groq API Key" />
+
+      <div class="adv-toggle" onclick="toggleAdvanced()">
+        <span>⚙️ Advanced Context (Optional)</span>
+        <span id="advIcon">▼</span>
+      </div>
+      <div class="adv-panel" id="advPanel">
+        <label>Core Features</label>
+        <input type="text" id="inFeatures" placeholder="e.g. Voice Translation, Camera OCR, Offline" />
+        <label>Unique Selling Points</label>
+        <input type="text" id="inUSP" placeholder="e.g. Real-time conversation translation" />
+        <label>Target Audience</label>
+        <input type="text" id="inAudience" placeholder="e.g. International travelers" />
+        <label>Primary Use Case</label>
+        <input type="text" id="inUseCase" placeholder="e.g. Translating restaurant menus abroad" />
+        <label>Tone</label>
+        <input type="text" id="inTone" placeholder="e.g. Professional, Friendly, Trendy" />
+        <label>Monetization</label>
+        <input type="text" id="inMon" placeholder="e.g. Freemium with Pro subscription" />
+      </div>
+
+      <label>Min. Reviews Filter</label>
+      <input type="text" id="inMinReviews" placeholder="0 (include all)" value="0" />
+    </div>
+
+    <!-- ======= STEP 1: COMPETITORS ======= -->
+    <div class="step-panel" id="panel1">
+      <div class="section-title">📊 Competitor Apps</div>
+      <div class="filter-bar" id="compStats">Loading competitors...</div>
+      <div id="compList"></div>
+    </div>
+
+    <!-- ======= STEP 2: KEYWORDS ======= -->
+    <div class="step-panel" id="panel2">
+      <div class="section-title">🔑 Extracted & AI Keywords</div>
+      <div class="kw-legend">
+        <span class="kw-chip core">Core</span>
+        <span class="kw-chip feature">Feature</span>
+        <span class="kw-chip intent">Intent</span>
+        <span class="kw-chip brand">Brand</span>
+        <span class="kw-chip ai_suggested">AI Suggested</span>
+      </div>
+      <div id="kwChips" class="kw-chips"></div>
+    </div>
+
+    <!-- ======= STEP 3: SELECT FIELDS ======= -->
+    <div class="step-panel" id="panel3">
+      <div class="section-title">✅ Select Fields to Generate</div>
+      <div class="field-check" onclick="toggleField('fTitle')">
+        <input type="checkbox" id="fTitle" checked>
+        <div>
+          <div class="field-check-label">📱 Title</div>
+          <div class="field-check-hint">Max 30 characters · Highest ranking weight</div>
+        </div>
+      </div>
+      <div class="field-check" onclick="toggleField('fSub')">
+        <input type="checkbox" id="fSub" checked>
+        <div>
+          <div class="field-check-label">📝 Subtitle</div>
+          <div class="field-check-hint">Max 30 characters · Feature-focused</div>
+        </div>
+      </div>
+      <div class="field-check" onclick="toggleField('fKey')">
+        <input type="checkbox" id="fKey" checked>
+        <div>
+          <div class="field-check-label">🔑 Keywords</div>
+          <div class="field-check-hint">Max 100 characters · Comma-separated</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ======= STEP 4: REVIEW & REGENERATE ======= -->
+    <div class="step-panel" id="panel4">
+      <div class="section-title">📋 Generated Content</div>
+      <div id="contentPreview"></div>
+      <div class="feedback-box">
+        <label style="margin-top:0">💬 Feedback for Regeneration</label>
+        <input type="text" id="inFeedback" placeholder="e.g. Make the title more action-oriented" maxlength="200" />
+        <div style="font-size:10px;color:#9e9e9e;margin-top:4px;text-align:right"><span id="fbCount">0</span>/200</div>
+      </div>
+    </div>
+
+    <!-- STATUS BAR (shared across steps) -->
+    <div class="status-bar" id="statusBar">
+      <div class="spinner-sm" id="statusSpinner"></div>
+      <span id="statusText"></span>
+    </div>
+  </div>
+
+  <!-- ==================== BUTTON BAR ==================== -->
+  <div class="btn-bar">
+    <button class="btn btn-ghost" onclick="google.script.host.close()">Cancel</button>
+    <button class="btn btn-secondary" id="btnBack" onclick="goBack()" style="display:none">← Back</button>
+    <button class="btn btn-secondary" id="btnRegen" onclick="regenerate()" style="display:none">🔄 Regenerate</button>
+    <button class="btn btn-primary" id="btnNext" onclick="goNext()">Start →</button>
+  </div>
+
+  <!-- ==================== SCRIPT ==================== -->
+  <script>
+    // ========== STATE ==========
+    var currentStep = 0;
+    var totalSteps = 5;
+    var competitors = [];
+    var scoredKeywords = [];
+    var dictionary = null;
+    var generatedContent = {};
+    var isProcessing = false;
+
+    // ========== INIT ==========
+    (function init() {
+      // Load languages first, then restore saved settings
+      google.script.run
+        .withSuccessHandler(function (langs) {
+          var sel = document.getElementById("inLang");
+          sel.innerHTML = '<option value="">— Select Language —</option>';
+          for (var i = 0; i < langs.length; i++) {
+            var opt = document.createElement("option");
+            opt.value = langs[i].name;
+            opt.textContent = langs[i].name + " (" + langs[i].country + ")";
+            sel.appendChild(opt);
+          }
+          sel.disabled = false;
+
+          // After languages loaded, restore saved settings
+          google.script.run
+            .withSuccessHandler(function (settings) {
+              if (!settings) return;
+              if (settings.niche) document.getElementById("inNiche").value = settings.niche;
+              if (settings.brandName) document.getElementById("inBrand").value = settings.brandName;
+              if (settings.language) sel.value = settings.language;
+              if (settings.model) document.getElementById("inModel").value = settings.model;
+              if (settings.minReviews) document.getElementById("inMinReviews").value = settings.minReviews;
+              // Restore advanced context fields
+              if (settings.features) document.getElementById("inFeatures").value = settings.features;
+              if (settings.usp) document.getElementById("inUSP").value = settings.usp;
+              if (settings.audience) document.getElementById("inAudience").value = settings.audience;
+              if (settings.useCase) document.getElementById("inUseCase").value = settings.useCase;
+              if (settings.tone) document.getElementById("inTone").value = settings.tone;
+              if (settings.monetization) document.getElementById("inMon").value = settings.monetization;
+              // Auto-expand advanced panel if any context was saved
+              if (settings.features || settings.usp || settings.audience || settings.useCase || settings.tone || settings.monetization) {
+                document.getElementById("advPanel").style.display = "block";
+                document.getElementById("advIcon").textContent = "▲";
+              }
+            })
+            .loadASOWizardSettings();
+        })
+        .getAvailableLanguages();
+
+      // Load saved API key
+      google.script.run
+        .withSuccessHandler(function (key) {
+          if (key) document.getElementById("inApiKey").value = key;
+        })
+        .getGeminiKey();
+
+      // Feedback counter
+      document.getElementById("inFeedback").addEventListener("input", function () {
+        document.getElementById("fbCount").textContent = this.value.length;
+      });
+    })();
+
+    // ========== NAVIGATION ==========
+    function goNext() {
+      if (isProcessing) return;
+
+      if (currentStep === 0) {
+        // Validate setup
+        if (!document.getElementById("inNiche").value.trim()) return showStatus("error", "⚠️ Please enter the App Niche.");
+        if (!document.getElementById("inLang").value) return showStatus("error", "⚠️ Please select a language.");
+        if (!document.getElementById("inApiKey").value.trim()) return showStatus("error", "⚠️ Please enter your API Key.");
+
+        // Load competitors
+        loadCompetitors();
+      } else if (currentStep === 1) {
+        // Extract keywords
+        extractKeywords();
+      } else if (currentStep === 2) {
+        // Go to field selection
+        setStep(3);
+      } else if (currentStep === 3) {
+        // Generate content
+        generateContent();
+      } else if (currentStep === 4) {
+        // Save to sheet
+        saveResults();
+      }
+    }
+
+    function goBack() {
+      if (isProcessing) return;
+      if (currentStep > 0) setStep(currentStep - 1);
+    }
+
+    function setStep(step) {
+      currentStep = step;
+
+      // Update panels
+      var panels = document.querySelectorAll(".step-panel");
+      for (var i = 0; i < panels.length; i++) {
+        panels[i].classList.toggle("active", i === step);
+      }
+
+      // Update dots
+      for (var d = 0; d < totalSteps; d++) {
+        var dot = document.getElementById("dot" + d);
+        dot.className = "step-dot";
+        if (d < step) dot.classList.add("done");
+        else if (d === step) dot.classList.add("active");
+
+        if (d < totalSteps - 1) {
+          var line = document.getElementById("line" + d);
+          line.className = "step-line" + (d < step ? " done" : "");
+        }
+      }
+
+      // Update buttons
+      document.getElementById("btnBack").style.display = step > 0 ? "" : "none";
+      document.getElementById("btnRegen").style.display = step === 4 ? "" : "none";
+
+      var btnNext = document.getElementById("btnNext");
+      var labels = ["Start →", "Extract Keywords →", "Select Fields →", "Generate Content →", "💾 Save to Sheet"];
+      btnNext.textContent = labels[step] || "Next →";
+      btnNext.disabled = false;
+
+      hideStatus();
+      document.getElementById("contentArea").scrollTop = 0;
+    }
+
+    // ========== STEP 1: LOAD COMPETITORS ==========
+    function loadCompetitors() {
+      var lang = document.getElementById("inLang").value;
+      var minReviews = parseInt(document.getElementById("inMinReviews").value) || 0;
+
+      // Save settings so user doesn't re-enter next time
+      google.script.run.saveASOWizardSettings({
+        niche: document.getElementById("inNiche").value.trim(),
+        brandName: document.getElementById("inBrand").value.trim(),
+        language: lang,
+        model: document.getElementById("inModel").value,
+        apiKey: document.getElementById("inApiKey").value.trim(),
+        features: document.getElementById("inFeatures").value.trim(),
+        usp: document.getElementById("inUSP").value.trim(),
+        audience: document.getElementById("inAudience").value.trim(),
+        useCase: document.getElementById("inUseCase").value.trim(),
+        tone: document.getElementById("inTone").value.trim(),
+        monetization: document.getElementById("inMon").value.trim(),
+        minReviews: String(minReviews)
+      });
+
+      setProcessing(true);
+      showStatus("loading", "🔍 Scanning scraped app sheets for " + lang + " data...");
+
+      google.script.run
+        .withSuccessHandler(function (result) {
+          competitors = result.competitors;
+          renderCompetitors(result);
+          setStep(1);
+          setProcessing(false);
+        })
+        .withFailureHandler(function (err) {
+          showStatus("error", "❌ " + (err.message || err));
+          setProcessing(false);
+        })
+        .getScrapedCompetitors(lang, minReviews);
+    }
+
+    function renderCompetitors(result) {
+      var stats = document.getElementById("compStats");
+      stats.innerHTML = "📊 <strong>" + result.competitors.length + "</strong> apps included" +
+        (result.filtered > 0 ? " · " + result.filtered + " filtered by reviews" : "") +
+        " · " + result.totalFound + " total found";
+
+      var html = "";
+      for (var i = 0; i < competitors.length; i++) {
+        var c = competitors[i];
+        var stars = "⭐".repeat(Math.round(c.rating));
+        html += '<div class="comp-card' + (c.included ? '' : ' excluded') + '" id="comp' + i + '">' +
+          '<div class="comp-toggle' + (c.included ? ' checked' : '') + '" onclick="toggleComp(' + i + ')">' +
+          (c.included ? '✓' : '') + '</div>' +
+          '<div class="comp-info">' +
+          '<div class="comp-name">' + escHtml(c.appName) + '</div>' +
+          '<div class="comp-title">' + escHtml(c.title) + (c.subtitle ? ' — ' + escHtml(c.subtitle) : '') + '</div>' +
+          '</div>' +
+          '<div class="comp-rating">' +
+          '<div class="comp-stars">' + c.rating.toFixed(1) + ' ⭐</div>' +
+          '<div class="comp-reviews">' + c.ratingCount.toLocaleString() + ' reviews</div>' +
+          '</div></div>';
+      }
+      document.getElementById("compList").innerHTML = html;
+    }
+
+    function toggleComp(index) {
+      competitors[index].included = !competitors[index].included;
+      var card = document.getElementById("comp" + index);
+      var toggle = card.querySelector(".comp-toggle");
+      card.classList.toggle("excluded", !competitors[index].included);
+      toggle.classList.toggle("checked", competitors[index].included);
+      toggle.textContent = competitors[index].included ? "✓" : "";
+    }
+
+    // ========== STEP 2: EXTRACT KEYWORDS ==========
+    function extractKeywords() {
+      var config = getConfig();
+      var included = competitors.filter(function (c) { return c.included; });
+      if (included.length === 0) return showStatus("error", "⚠️ Please include at least one competitor.");
+
+      setProcessing(true);
+      showStatus("loading", "🧠 Extracting keywords from " + included.length + " competitors + AI generation...");
+
+      google.script.run
+        .withSuccessHandler(function (result) {
+          scoredKeywords = result.keywords;
+          dictionary = result.dictionary;
+          renderKeywords();
+          setStep(2);
+          setProcessing(false);
+        })
+        .withFailureHandler(function (err) {
+          showStatus("error", "❌ " + (err.message || err));
+          setProcessing(false);
+        })
+        .extractAndScoreKeywords(
+          competitors, config.language, config.niche, config.apiKey, config.model, config.appContext, config.brandName
+        );
+    }
+
+    function renderKeywords() {
+      var html = "";
+      var limit = Math.min(scoredKeywords.length, 100);
+      for (var i = 0; i < limit; i++) {
+        var kw = scoredKeywords[i];
+        var cls = kw.cluster || "unassigned";
+        var excluded = kw.excluded ? " excluded" : "";
+        html += '<span class="kw-chip ' + cls + excluded + '" onclick="toggleKw(' + i + ')" id="kw' + i + '" title="' +
+          escHtml('Score: ' + kw.score + ' | Freq: ' + kw.frequency + ' | Sources: ' + (kw.sources || []).join(', ')) + '">' +
+          escHtml(kw.keyword) +
+          (kw.score > 0 ? '<span class="kw-score">' + kw.score + '</span>' : '') +
+          '</span>';
+      }
+      document.getElementById("kwChips").innerHTML = html;
+    }
+
+    function toggleKw(index) {
+      scoredKeywords[index].excluded = !scoredKeywords[index].excluded;
+      var chip = document.getElementById("kw" + index);
+      chip.classList.toggle("excluded", scoredKeywords[index].excluded);
+    }
+
+    // ========== STEP 3: GENERATE CONTENT ==========
+    function generateContent() {
+      var config = getConfig();
+      var activeKw = scoredKeywords.filter(function (k) { return !k.excluded; });
+
+      setProcessing(true);
+      showStatus("loading", "✨ AI is writing your optimized App Store metadata...");
+
+      google.script.run
+        .withSuccessHandler(function (result) {
+          generatedContent = result;
+          renderContent();
+          setStep(4);
+          setProcessing(false);
+        })
+        .withFailureHandler(function (err) {
+          showStatus("error", "❌ " + (err.message || err));
+          setProcessing(false);
+        })
+        .generateASOContent({
+          keywords: activeKw,
+          fields: getSelectedFields(),
+          currentContent: null,
+          brandName: config.brandName,
+          language: config.language,
+          niche: config.niche,
+          apiKey: config.apiKey,
+          modelName: config.model,
+          appContext: config.appContext
+        });
+    }
+
+    function renderContent() {
+      var fields = [
+        { key: "title", label: "📱 Title", cls: "title-card", limit: 30, tag: "input" },
+        { key: "subtitle", label: "📝 Subtitle", cls: "subtitle-card", limit: 30, tag: "input" },
+        { key: "keywords", label: "🔑 Keywords", cls: "keywords-card", limit: 100, tag: "input" }
+      ];
+
+      var html = "";
+      for (var i = 0; i < fields.length; i++) {
+        var f = fields[i];
+        var val = generatedContent[f.key] || "";
+        if (!val && !getSelectedFields()[f.key]) continue;
+
+        var charCls = val.length > f.limit ? "over" : "ok";
+        if (f.tag === "textarea") {
+          html += '<div class="content-card ' + f.cls + '">' +
+            '<div class="content-label">' + f.label + '</div>' +
+            '<textarea class="content-value" id="cv_' + f.key + '" rows="5" oninput="updateCharCount(\'' + f.key + '\',' + f.limit + ')">' + escHtml(val) + '</textarea>' +
+            '<div class="char-count ' + charCls + '" id="cc_' + f.key + '">' + val.length + '/' + f.limit + '</div></div>';
+        } else {
+          html += '<div class="content-card ' + f.cls + '">' +
+            '<div class="content-label">' + f.label + '</div>' +
+            '<input class="content-value" id="cv_' + f.key + '" value="' + escHtml(val) + '" oninput="updateCharCount(\'' + f.key + '\',' + f.limit + ')" />' +
+            '<div class="char-count ' + charCls + '" id="cc_' + f.key + '">' + val.length + '/' + f.limit + '</div></div>';
+        }
+      }
+      document.getElementById("contentPreview").innerHTML = html;
+
+      // Update button
+      document.getElementById("btnNext").textContent = "💾 Save to Sheet";
+    }
+
+    function updateCharCount(key, limit) {
+      var el = document.getElementById("cv_" + key);
+      var cc = document.getElementById("cc_" + key);
+      var len = el.value.length;
+      cc.textContent = len + "/" + limit;
+      cc.className = "char-count " + (len > limit ? "over" : "ok");
+    }
+
+    // ========== REGENERATE WITH FEEDBACK ==========
+    function regenerate() {
+      var feedback = document.getElementById("inFeedback").value.trim();
+      if (!feedback) return showStatus("error", "⚠️ Please enter feedback for regeneration.");
+
+      var config = getConfig();
+      setProcessing(true);
+      showStatus("loading", "🔄 Regenerating with your feedback...");
+
+      // Read current content from inputs
+      var current = {};
+      ["title", "subtitle", "keywords"].forEach(function (k) {
+        var el = document.getElementById("cv_" + k);
+        if (el) current[k] = el.value;
+      });
+
+      google.script.run
+        .withSuccessHandler(function (result) {
+          generatedContent = result;
+          renderContent();
+          document.getElementById("inFeedback").value = "";
+          document.getElementById("fbCount").textContent = "0";
+          showStatus("success", "✅ Content regenerated successfully!");
+          setProcessing(false);
+        })
+        .withFailureHandler(function (err) {
+          showStatus("error", "❌ " + (err.message || err));
+          setProcessing(false);
+        })
+        .regenerateASOContent({
+          previousContent: current,
+          feedback: feedback,
+          fields: getSelectedFields(),
+          brandName: config.brandName,
+          language: config.language,
+          niche: config.niche,
+          apiKey: config.apiKey,
+          modelName: config.model,
+          appContext: config.appContext
+        });
+    }
+
+    // ========== SAVE ==========
+    function saveResults() {
+      var config = getConfig();
+      setProcessing(true);
+      showStatus("loading", "💾 Saving results to spreadsheet...");
+
+      // Read final content from inputs
+      var finalContent = {};
+      ["title", "subtitle", "keywords"].forEach(function (k) {
+        var el = document.getElementById("cv_" + k);
+        if (el) finalContent[k] = el.value;
+      });
+
+      var activeKw = scoredKeywords.filter(function (k) { return !k.excluded; });
+
+      google.script.run
+        .withSuccessHandler(function (msg) {
+          showStatus("success", msg);
+          setProcessing(false);
+          // Update save button
+          document.getElementById("btnNext").textContent = "✅ Saved!";
+          document.getElementById("btnNext").disabled = true;
+        })
+        .withFailureHandler(function (err) {
+          showStatus("error", "❌ " + (err.message || err));
+          setProcessing(false);
+        })
+        .writeASOResults(config.language, finalContent, activeKw, config.brandName);
+    }
+
+    // ========== HELPERS ==========
+    function getConfig() {
+      var ctx = "";
+      var f = document.getElementById("inFeatures").value.trim();
+      var u = document.getElementById("inUSP").value.trim();
+      var a = document.getElementById("inAudience").value.trim();
+      var uc = document.getElementById("inUseCase").value.trim();
+      var t = document.getElementById("inTone").value.trim();
+      var m = document.getElementById("inMon").value.trim();
+      if (f) ctx += "- Core Features: " + f + "\n";
+      if (u) ctx += "- USP: " + u + "\n";
+      if (a) ctx += "- Target Audience: " + a + "\n";
+      if (uc) ctx += "- Use Case: " + uc + "\n";
+      if (t) ctx += "- Tone: " + t + "\n";
+      if (m) ctx += "- Monetization: " + m + "\n";
+
+      return {
+        niche: document.getElementById("inNiche").value.trim(),
+        brandName: document.getElementById("inBrand").value.trim(),
+        language: document.getElementById("inLang").value,
+        model: document.getElementById("inModel").value,
+        apiKey: document.getElementById("inApiKey").value.trim(),
+        appContext: ctx
+      };
+    }
+
+    function getSelectedFields() {
+      return {
+        title: document.getElementById("fTitle").checked,
+        subtitle: document.getElementById("fSub").checked,
+        keywords: document.getElementById("fKey").checked
+      };
+    }
+
+    function toggleField(id) {
+      var cb = document.getElementById(id);
+      cb.checked = !cb.checked;
+    }
+
+    function toggleAdvanced() {
+      var panel = document.getElementById("advPanel");
+      var icon = document.getElementById("advIcon");
+      panel.style.display = panel.style.display === "none" || !panel.style.display ? "block" : "none";
+      icon.textContent = panel.style.display === "block" ? "▲" : "▼";
+    }
+
+    function showStatus(type, msg) {
+      var bar = document.getElementById("statusBar");
+      var spinner = document.getElementById("statusSpinner");
+      var text = document.getElementById("statusText");
+      bar.className = "status-bar " + type;
+      spinner.style.display = type === "loading" ? "block" : "none";
+      text.textContent = msg;
+    }
+    function hideStatus() {
+      document.getElementById("statusBar").className = "status-bar";
+    }
+
+    function setProcessing(state) {
+      isProcessing = state;
+      document.getElementById("btnNext").disabled = state;
+      document.getElementById("btnBack").disabled = state;
+      document.getElementById("btnRegen").disabled = state;
+    }
+
+    function escHtml(s) {
+      if (!s) return "";
+      return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+    }
+  </script>
+</body>
+
+</html>

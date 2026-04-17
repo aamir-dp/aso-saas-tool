@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <base target="_top">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📊 App Analysis Tool - ASO SaaS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/global.css">
+    <style>
+        body {
+            flex-direction: column;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            background: linear-gradient(135deg, #10b981, #3b82f6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+
+        .header p {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 12px;
+            overflow-x: auto;
+        }
+
+        .tab-btn {
+            padding: 8px 16px;
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+
+        .tab-btn.active {
+            color: var(--accent);
+            border-bottom-color: var(--accent);
+        }
+
+        .tab-btn:hover {
+            color: var(--accent-hover);
+        }
+
+        .tab-content {
+            display: none;
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 12px;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+        }
+
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        textarea:focus,
+        select:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+            background-color: var(--bg-color);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .col {
+            flex: 1;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 4px 6px -1px rgba(99, 102, 241, 0.2);
+        }
+
+        button:hover {
+            background-color: var(--accent-hover);
+        }
+
+        button:disabled {
+            background-color: var(--border-color);
+            color: var(--text-secondary);
+            cursor: not-allowed;
+        }
+
+        #loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+            color: var(--accent);
+            font-weight: 500;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(99, 102, 241, 0.2);
+            border-radius: 50%;
+            border-top-color: var(--accent);
+            animation: spin 1s ease-in-out infinite;
+            margin-bottom: 8px;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .analysis-results {
+            display: none;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 16px;
+            margin-top: 16px;
+        }
+
+        .analysis-results.show {
+            display: block;
+        }
+
+        .metric-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+
+        .metric-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        .metric-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .metric-description {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 8px;
+        }
+
+        .info-box {
+            background: rgba(59, 130, 246, 0.1);
+            border-left: 3px solid var(--info);
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 16px;
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .recommendation {
+            background: rgba(16, 185, 129, 0.1);
+            border-left: 3px solid var(--success);
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 12px;
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .warning {
+            background: rgba(245, 158, 11, 0.1);
+            border-left: 3px solid var(--warning);
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 12px;
+            font-size: 13px;
+            color: var(--warning);
+        }
+
+        @media (max-width: 768px) {
+            .row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <h1>📊 App Analysis Tool</h1>
+        <p>Analyze metadata, reviews, and app performance metrics</p>
+    </div>
+
+    <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('metadata')">📝 Metadata Analysis</button>
+        <button class="tab-btn" onclick="switchTab('competition')">🏆 Competition Analysis</button>
+        <button class="tab-btn" onclick="switchTab('optimization')">⚡ Optimization Tips</button>
+    </div>
+
+    <!-- Metadata Analysis Tab -->
+    <div id="metadata" class="tab-content active">
+        <div class="form-group">
+            <label>App Name *</label>
+            <input type="text" id="appName" placeholder="e.g., My Photo Editor" required>
+        </div>
+
+        <div class="row">
+            <div class="col">
+                <div class="form-group">
+                    <label>Country *</label>
+                    <select id="analysisCountry" required>
+                        <option value="">Select Country...</option>
+                        <option value="US">United States</option>
+                        <option value="GB">United Kingdom</option>
+                        <option value="DE">Germany</option>
+                        <option value="FR">France</option>
+                        <option value="JP">Japan</option>
+                        <option value="CN">China</option>
+                        <option value="IN">India</option>
+                        <option value="BR">Brazil</option>
+                        <option value="ES">Spain</option>
+                        <option value="IT">Italy</option>
+                        <option value="CA">Canada</option>
+                        <option value="AU">Australia</option>
+                        <option value="KR">South Korea</option>
+                        <option value="RU">Russia</option>
+                        <option value="MX">Mexico</option>
+                        <option value="NL">Netherlands</option>
+                        <option value="SE">Sweden</option>
+                        <option value="CH">Switzerland</option>
+                        <option value="TW">Taiwan</option>
+                        <option value="SG">Singapore</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col">
+                <div class="form-group">
+                    <label>App ID (Optional)</label>
+                    <input type="number" id="analysisAppId" placeholder="e.g., 1234567890">
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>App Description</label>
+            <textarea id="appDescription" placeholder="Paste your app description here..."></textarea>
+        </div>
+
+        <div class="form-group">
+            <label>Target Keywords (comma-separated)</label>
+            <textarea id="targetKeywords" placeholder="e.g., photo editor, image editor, photo effects"></textarea>
+        </div>
+
+        <button onclick="analyzeMetadata()">Analyze Metadata</button>
+
+        <div id="metadataLoading" class="form-group" style="display: none; text-align: center;">
+            <div class="spinner"></div>
+            <div>Analyzing metadata...</div>
+        </div>
+
+        <div id="metadataResults" class="analysis-results"></div>
+    </div>
+
+    <!-- Competition Analysis Tab -->
+    <div id="competition" class="tab-content">
+        <div class="info-box">
+            Compare your app against top competitors in your category.
+        </div>
+
+        <div class="form-group">
+            <label>Your App Name *</label>
+            <input type="text" id="yourAppName" placeholder="Your app name" required>
+        </div>
+
+        <div class="row">
+            <div class="col">
+                <div class="form-group">
+                    <label>Country *</label>
+                    <select id="compCountry" required>
+                        <option value="">Select Country...</option>
+                        <option value="US">United States</option>
+                        <option value="GB">United Kingdom</option>
+                        <option value="DE">Germany</option>
+                        <option value="FR">France</option>
+                        <option value="JP">Japan</option>
+                        <option value="CN">China</option>
+                        <option value="IN">India</option>
+                        <option value="BR">Brazil</option>
+                        <option value="ES">Spain</option>
+                        <option value="IT">Italy</option>
+                        <option value="CA">Canada</option>
+                        <option value="AU">Australia</option>
+                        <option value="KR">South Korea</option>
+                        <option value="RU">Russia</option>
+                        <option value="MX">Mexico</option>
+                        <option value="NL">Netherlands</option>
+                        <option value="SE">Sweden</option>
+                        <option value="CH">Switzerland</option>
+                        <option value="TW">Taiwan</option>
+                        <option value="SG">Singapore</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col">
+                <div class="form-group">
+                    <label>Category</label>
+                    <select id="appCategory">
+                        <option value="">Select Category...</option>
+                        <option value="Productivity">Productivity</option>
+                        <option value="Photo">Photo & Video</option>
+                        <option value="Social">Social Networking</option>
+                        <option value="Games">Games</option>
+                        <option value="Entertainment">Entertainment</option>
+                        <option value="Education">Education</option>
+                        <option value="Health">Health & Fitness</option>
+                        <option value="Business">Business</option>
+                        <option value="Lifestyle">Lifestyle</option>
+                        <option value="Travel">Travel</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>Top Competitors (comma-separated app names)</label>
+            <textarea id="competitors"
+                placeholder="e.g., Competitor App 1, Competitor App 2, Competitor App 3"></textarea>
+        </div>
+
+        <button onclick="analyzeCompetition()">Analyze Competition</button>
+
+        <div id="competitionLoading" class="form-group" style="display: none; text-align: center;">
+            <div class="spinner"></div>
+            <div>Analyzing competition...</div>
+        </div>
+
+        <div id="competitionResults" class="analysis-results"></div>
+    </div>
+
+    <!-- Optimization Tips Tab -->
+    <div id="optimization" class="tab-content">
+        <div class="info-box">
+            Get AI-powered recommendations for optimizing your app store presence.
+        </div>
+
+        <div class="form-group">
+            <label>What would you like to optimize? *</label>
+            <select id="optimizationType" required>
+                <option value="">Select Type...</option>
+                <option value="title">App Title</option>
+                <option value="subtitle">Subtitle</option>
+                <option value="description">Description</option>
+                <option value="keywords">Keywords</option>
+                <option value="all">All Elements</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Current Content</label>
+            <textarea id="currentContent"
+                placeholder="Paste your current app title, subtitle, description, or keywords..."></textarea>
+        </div>
+
+        <div class="row">
+            <div class="col">
+                <div class="form-group">
+                    <label>Country *</label>
+                    <select id="optCountry" required>
+                        <option value="">Select Country...</option>
+                        <option value="US">United States</option>
+                        <option value="GB">United Kingdom</option>
+                        <option value="DE">Germany</option>
+                        <option value="FR">France</option>
+                        <option value="JP">Japan</option>
+                        <option value="CN">China</option>
+                        <option value="IN">India</option>
+                        <option value="BR">Brazil</option>
+                        <option value="ES">Spain</option>
+                        <option value="IT">Italy</option>
+                        <option value="CA">Canada</option>
+                        <option value="AU">Australia</option>
+                        <option value="KR">South Korea</option>
+                        <option value="RU">Russia</option>
+                        <option value="MX">Mexico</option>
+                        <option value="NL">Netherlands</option>
+                        <option value="SE">Sweden</option>
+                        <option value="CH">Switzerland</option>
+                        <option value="TW">Taiwan</option>
+                        <option value="SG">Singapore</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col">
+                <div class="form-group">
+                    <label>Target Audience</label>
+                    <input type="text" id="targetAudience" placeholder="e.g., professionals, gamers, students">
+                </div>
+            </div>
+        </div>
+
+        <button onclick="getOptimizationTips()">Get Optimization Tips</button>
+
+        <div id="optimizationLoading" class="form-group" style="display: none; text-align: center;">
+            <div class="spinner"></div>
+            <div>Generating recommendations...</div>
+        </div>
+
+        <div id="optimizationResults" class="analysis-results"></div>
+    </div>
+
+    <script>
+        // ========== TAB SWITCHING ==========
+        function switchTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // Remove active class from all buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            // Show selected tab
+            document.getElementById(tabName).classList.add('active');
+
+            // Add active class to clicked button
+            event.target.classList.add('active');
+        }
+
+        // ========== METADATA ANALYSIS ==========
+        async function analyzeMetadata() {
+            const appName = document.getElementById('appName').value.trim();
+            const country = document.getElementById('analysisCountry').value;
+            const appId = document.getElementById('analysisAppId').value;
+            const description = document.getElementById('appDescription').value.trim();
+            const keywords = document.getElementById('targetKeywords').value.trim();
+
+            if (!appName) {
+                alert('⚠️ Please enter your app name');
+                return;
+            }
+
+            if (!country) {
+                alert('⚠️ Please select a country');
+                return;
+            }
+
+            document.getElementById('metadataLoading').style.display = 'block';
+            document.getElementById('metadataResults').classList.remove('show');
+
+            try {
+                // Simulate API call
+                await new Promise(r => setTimeout(r, 1000));
+
+                const results = `
+                    <div class="metric-card">
+                        <div class="metric-label">Title Quality Score</div>
+                        <div class="metric-value">8.5/10</div>
+                        <div class="metric-description">Your app title is clear and includes relevant keywords.</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">Description Coverage</div>
+                        <div class="metric-value">7.2/10</div>
+                        <div class="metric-description">Good coverage of features, but could include more benefits.</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">Keyword Optimization</div>
+                        <div class="metric-value">6.8/10</div>
+                        <div class="metric-description">Keywords are relevant but could be more diverse.</div>
+                    </div>
+                    <div class="recommendation">
+                        💡 <strong>Recommendation:</strong> Add localized keywords for the ${country} market. Include more emotional benefits in your description.
+                    </div>
+                `;
+
+                document.getElementById('metadataResults').innerHTML = results;
+                document.getElementById('metadataResults').classList.add('show');
+            } catch (error) {
+                alert('❌ Error analyzing metadata: ' + error.message);
+            } finally {
+                document.getElementById('metadataLoading').style.display = 'none';
+            }
+        }
+
+        // ========== COMPETITION ANALYSIS ==========
+        async function analyzeCompetition() {
+            const yourApp = document.getElementById('yourAppName').value.trim();
+            const country = document.getElementById('compCountry').value;
+            const category = document.getElementById('appCategory').value;
+            const competitors = document.getElementById('competitors').value.trim();
+
+            if (!yourApp) {
+                alert('⚠️ Please enter your app name');
+                return;
+            }
+
+            if (!country) {
+                alert('⚠️ Please select a country');
+                return;
+            }
+
+            document.getElementById('competitionLoading').style.display = 'block';
+            document.getElementById('competitionResults').classList.remove('show');
+
+            try {
+                // Simulate API call
+                await new Promise(r => setTimeout(r, 1500));
+
+                const results = `
+                    <div class="metric-card">
+                        <div class="metric-label">Your Market Position</div>
+                        <div class="metric-value">#${Math.floor(Math.random() * 50) + 1}</div>
+                        <div class="metric-description">In category: ${category || 'N/A'}</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">Average Competitor Rating</div>
+                        <div class="metric-value">4.${Math.floor(Math.random() * 9)}</div>
+                        <div class="metric-description">Your rating should be at least this high to be competitive.</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">Download Volume Index</div>
+                        <div class="metric-value">${Math.floor(Math.random() * 80) + 20}%</div>
+                        <div class="metric-description">Compared to top competitors.</div>
+                    </div>
+                    <div class="warning">
+                        ⚠️ <strong>Alert:</strong> Top competitors are using more keywords. Consider expanding your keyword strategy.
+                    </div>
+                    <div class="recommendation">
+                        💡 <strong>Strategy:</strong> Focus on customer support and ratings to differentiate from competitors in ${country}.
+                    </div>
+                `;
+
+                document.getElementById('competitionResults').innerHTML = results;
+                document.getElementById('competitionResults').classList.add('show');
+            } catch (error) {
+                alert('❌ Error analyzing competition: ' + error.message);
+            } finally {
+                document.getElementById('competitionLoading').style.display = 'none';
+            }
+        }
+
+        // ========== OPTIMIZATION TIPS ==========
+        async function getOptimizationTips() {
+            const optimizationType = document.getElementById('optimizationType').value;
+            const currentContent = document.getElementById('currentContent').value.trim();
+            const country = document.getElementById('optCountry').value;
+            const audience = document.getElementById('targetAudience').value.trim();
+
+            if (!optimizationType) {
+                alert('⚠️ Please select optimization type');
+                return;
+            }
+
+            if (!country) {
+                alert('⚠️ Please select a country');
+                return;
+            }
+
+            document.getElementById('optimizationLoading').style.display = 'block';
+            document.getElementById('optimizationResults').classList.remove('show');
+
+            try {
+                // Simulate API call
+                await new Promise(r => setTimeout(r, 1200));
+
+                const tips = `
+                    <div class="metric-card">
+                        <div class="metric-label">Current Score</div>
+                        <div class="metric-value">6.5/10</div>
+                        <div class="metric-description">For: ${optimizationType}</div>
+                    </div>
+                    <div class="recommendation">
+                        💡 <strong>Tip 1:</strong> Include action words like "Create", "Design", "Capture" in your ${optimizationType}.
+                    </div>
+                    <div class="recommendation">
+                        💡 <strong>Tip 2:</strong> Add numbers and emojis to increase CTR. Example: "📸 #1 Photo Editor - 10M+ Users"
+                    </div>
+                    <div class="recommendation">
+                        💡 <strong>Tip 3:</strong> Consider local keywords for ${country} market. ${country === 'JP' ? 'Include katakana terms' : 'Include regional variations'}
+                    </div>
+                    ${audience ? `<div class="recommendation">
+                        💡 <strong>Tip 4:</strong> Tailor messaging for ${audience}: Focus on relevant pain points and benefits.
+                    </div>` : ''}
+                    <div class="info-box">
+                        📊 A/B test different versions to see which performs best. Update monthly based on performance data.
+                    </div>
+                `;
+
+                document.getElementById('optimizationResults').innerHTML = tips;
+                document.getElementById('optimizationResults').classList.add('show');
+            } catch (error) {
+                alert('❌ Error generating tips: ' + error.message);
+            } finally {
+                document.getElementById('optimizationLoading').style.display = 'none';
+            }
+        }
+    </script>
+</body>
+
+</html>
